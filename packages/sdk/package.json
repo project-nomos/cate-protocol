@@ -1,0 +1,63 @@
+{
+  "name": "@cate-protocol/sdk",
+  "version": "0.1.0",
+  "description": "Consumer Agent Trust Envelope SDK — identity, E2EE, consent, rate limits, and message stamps",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    },
+    "./identity": {
+      "types": "./dist/identity/index.d.ts",
+      "import": "./dist/identity/index.js"
+    },
+    "./stamps": {
+      "types": "./dist/stamps/index.d.ts",
+      "import": "./dist/stamps/index.js"
+    },
+    "./policy": {
+      "types": "./dist/policy/index.d.ts",
+      "import": "./dist/policy/index.js"
+    },
+    "./encryption": {
+      "types": "./dist/encryption/index.d.ts",
+      "import": "./dist/encryption/index.js"
+    },
+    "./transport": {
+      "types": "./dist/transport/index.d.ts",
+      "import": "./dist/transport/index.js"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.2.3",
+    "@noble/hashes": "^1.8.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
