@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  release:
+    name: Publish & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+
+      - name: Create and push tag (dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
+          echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
+
+      - name: Set version from tag
+        if: github.event_name == 'push'
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4.2.0
+
+      - name: Setup Node.js (GitHub Packages)
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@cate-protocol"
+
+      - name: Set package version from tag
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          VERSION="${VERSION#v}"
+          # Update SDK package version
+          cd packages/sdk
+          npm pkg set version="$VERSION"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run checks
+        run: pnpm typecheck && pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to GitHub Packages
+        run: |
+          cd packages/sdk
+          pnpm publish --no-git-checks --access public || echo "Package version may already exist, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          generate_release_notes: true
+
+  publish-npm:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4.2.0
+
+      - name: Setup Node.js (npm)
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Set version from tag
+        if: github.event_name == 'push'
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Set version from input
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
+
+      - name: Set package version
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          VERSION="${VERSION#v}"
+          cd packages/sdk
+          npm pkg set version="$VERSION"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publish to npm
+        run: |
+          cd packages/sdk
+          pnpm publish --no-git-checks --access public || echo "Package version may already exist, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  version-bump:
+    name: Bump Version in Repo
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Update package version in repo
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          VERSION="${VERSION#v}"
+          cd packages/sdk
+          npm pkg set version="$VERSION"
+          cd ../..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/sdk/package.json
+          git commit -m "release: update to v${VERSION}" || true
+          git push origin HEAD:main || true
