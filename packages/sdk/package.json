@@ -1,5 +1,5 @@
 {
-  "name": "@cate-protocol/sdk",
+  "name": "@project-nomos/cate-sdk",
   "version": "0.0.1",
   "description": "Consumer Agent Trust Envelope SDK — identity, E2EE, consent, rate limits, and message stamps",
   "license": "Apache-2.0",
