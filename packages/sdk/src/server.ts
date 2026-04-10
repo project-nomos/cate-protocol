@@ -23,10 +23,7 @@ export interface CATEServerConfig {
     keystore: Keystore;
   };
   policy?: PolicyConfig;
-  onMessage: (
-    envelope: CATEEnvelope,
-    context: MessageContext,
-  ) => void | Promise<void>;
+  onMessage: (envelope: CATEEnvelope, context: MessageContext) => void | Promise<void>;
   onError?: (error: Error) => void;
   resolveTrustTier?: (senderDid: string) => TrustTier | Promise<TrustTier>;
 }
@@ -46,18 +43,13 @@ export class CATEServer {
 
   constructor(config: CATEServerConfig) {
     this.config = config;
-    this.policyEngine = new PolicyEngine(
-      config.policy ?? { default_action: "allow", rules: [] },
-    );
+    this.policyEngine = new PolicyEngine(config.policy ?? { default_action: "allow", rules: [] });
   }
 
   /**
    * Start listening for incoming CATE envelopes.
    */
-  async listen(params: {
-    transport: Transport;
-    options?: TransportOptions;
-  }): Promise<void> {
+  async listen(params: { transport: Transport; options?: TransportOptions }): Promise<void> {
     this.transport = params.transport;
 
     params.transport.on({
@@ -86,7 +78,9 @@ export class CATEServer {
     // Verify recipient
     if (envelope.parties.to.did !== this.config.identity.did) {
       this.config.onError?.(
-        new Error(`Envelope addressed to ${envelope.parties.to.did}, not ${this.config.identity.did}`),
+        new Error(
+          `Envelope addressed to ${envelope.parties.to.did}, not ${this.config.identity.did}`,
+        ),
       );
       return;
     }

@@ -73,10 +73,7 @@ export function createPoWStamp(params: CreatePoWStampParams): PoWStamp {
  * Recomputes the hash and checks it has the required
  * number of leading zero bits.
  */
-export function verifyPoWStamp(
-  stamp: PoWStamp,
-  minDifficulty?: number,
-): StampVerificationResult {
+export function verifyPoWStamp(stamp: PoWStamp, minDifficulty?: number): StampVerificationResult {
   const requiredDifficulty = minDifficulty ?? stamp.difficulty;
 
   if (stamp.difficulty < requiredDifficulty) {

@@ -58,9 +58,7 @@ export class HttpTransport extends Transport {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "accepted" }));
       } catch (err) {
-        this.events?.onError(
-          err instanceof Error ? err : new Error(String(err)),
-        );
+        this.events?.onError(err instanceof Error ? err : new Error(String(err)));
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Invalid envelope" }));
       }

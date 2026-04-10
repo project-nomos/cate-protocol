@@ -99,9 +99,7 @@ export async function verifyVC(
 
   // Reconstruct the signed payload
   const credentialWithoutProof = { ...credential, proof: undefined };
-  const credentialBytes = new TextEncoder().encode(
-    JSON.stringify(credentialWithoutProof),
-  );
+  const credentialBytes = new TextEncoder().encode(JSON.stringify(credentialWithoutProof));
 
   // Verify signature
   if (!credential.proof.proofValue) {

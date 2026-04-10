@@ -95,10 +95,7 @@ export function addMember(
 /**
  * Remove a member from the group (creates a new epoch).
  */
-export function removeMember(
-  group: MLSGroupState,
-  memberDid: string,
-): MLSGroupState {
+export function removeMember(group: MLSGroupState, memberDid: string): MLSGroupState {
   if (!group.members.some((m) => m.did === memberDid)) {
     throw new Error(`Member ${memberDid} not in group`);
   }

@@ -63,19 +63,9 @@ export type Security = z.infer<typeof SecuritySchema>;
 
 // --- Policy ---
 
-export const IntentSchema = z.enum([
-  "personal",
-  "transactional",
-  "promotional",
-  "system",
-]);
+export const IntentSchema = z.enum(["personal", "transactional", "promotional", "system"]);
 
-export const ActionClassSchema = z.enum([
-  "inform",
-  "request",
-  "execute",
-  "handoff",
-]);
+export const ActionClassSchema = z.enum(["inform", "request", "execute", "handoff"]);
 
 export const DataLabelSchema = z.enum(["pii", "finance", "health", "none"]);
 

@@ -87,10 +87,7 @@ export class CATEClient {
       }),
     );
 
-    const signature = await this.config.identity.keystore.sign(
-      this.config.identity.keyId,
-      sigData,
-    );
+    const signature = await this.config.identity.keystore.sign(this.config.identity.keyId, sigData);
     envelope.security.envelope_sig = bytesToHex(signature);
 
     await this.transport.send(envelope, params.endpoint);

@@ -22,10 +22,7 @@ export class PolicyEngine {
   /**
    * Evaluate an envelope against the policy rules.
    */
-  evaluate(
-    envelope: CATEEnvelope,
-    senderTrustTier: TrustTier = "unknown",
-  ): PolicyDecision {
+  evaluate(envelope: CATEEnvelope, senderTrustTier: TrustTier = "unknown"): PolicyDecision {
     for (const rule of this.rules) {
       if (this.matchesRule(rule, envelope, senderTrustTier)) {
         // If rule requires stamp, verify it

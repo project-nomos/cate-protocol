@@ -8,6 +8,11 @@
     "url": "https://github.com/project-nomos/cate-protocol.git",
     "directory": "packages/sdk"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,11 +50,6 @@
       "import": "./dist/adapters/index.js"
     }
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

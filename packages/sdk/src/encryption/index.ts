@@ -1,8 +1,4 @@
-export {
-  generateKeyPackage,
-  validateKeyPackage,
-  type KeyPackage,
-} from "./mls-keys.js";
+export { generateKeyPackage, validateKeyPackage, type KeyPackage } from "./mls-keys.js";
 
 export {
   createGroup,

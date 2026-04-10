@@ -44,9 +44,7 @@ export async function generateKeyPackage(
   const now = new Date();
 
   const id = bytesToHex(
-    sha256(
-      new TextEncoder().encode(`${params.did}:${params.keyId}:${now.toISOString()}`),
-    ),
+    sha256(new TextEncoder().encode(`${params.did}:${params.keyId}:${now.toISOString()}`)),
   ).substring(0, 32);
 
   return {

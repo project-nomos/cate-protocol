@@ -19,9 +19,7 @@ export interface CreateMicropaymentParams {
 /**
  * Create a micropayment stamp with a receipt reference.
  */
-export function createMicropaymentStamp(
-  params: CreateMicropaymentParams,
-): MicropaymentStamp {
+export function createMicropaymentStamp(params: CreateMicropaymentParams): MicropaymentStamp {
   const ttl = params.ttl_seconds ?? 86400;
   const expiry = new Date(Date.now() + ttl * 1000).toISOString();
 

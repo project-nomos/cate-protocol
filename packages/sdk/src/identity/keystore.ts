@@ -57,11 +57,7 @@ export class MemoryKeystore implements Keystore {
     return ed.sign(data, key.privateKey);
   }
 
-  async verify(
-    publicKey: Uint8Array,
-    data: Uint8Array,
-    signature: Uint8Array,
-  ): Promise<boolean> {
+  async verify(publicKey: Uint8Array, data: Uint8Array, signature: Uint8Array): Promise<boolean> {
     const ed = await import("@noble/ed25519");
     return ed.verify(signature, data, publicKey);
   }

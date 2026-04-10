@@ -5,12 +5,7 @@
 import { z } from "zod";
 import { StampRequirementSchema } from "./stamps.js";
 
-export const IntentCategorySchema = z.enum([
-  "personal",
-  "transactional",
-  "promotional",
-  "system",
-]);
+export const IntentCategorySchema = z.enum(["personal", "transactional", "promotional", "system"]);
 
 export type IntentCategory = z.infer<typeof IntentCategorySchema>;
 
@@ -46,9 +41,7 @@ export const PolicyConfigSchema = z.object({
   default_action: z.enum(["allow", "deny"]).default("deny"),
   rules: z.array(PolicyRuleSchema).default([]),
   default_rate_budget: RateBudgetSchema.optional(),
-  trust_tier_budgets: z
-    .record(TrustTierSchema, RateBudgetSchema)
-    .optional(),
+  trust_tier_budgets: z.record(TrustTierSchema, RateBudgetSchema).optional(),
 });
 
 export type PolicyConfig = z.infer<typeof PolicyConfigSchema>;

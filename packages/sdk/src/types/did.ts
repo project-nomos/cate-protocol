@@ -23,9 +23,7 @@ export const ServiceEndpointSchema = z.object({
 export type ServiceEndpoint = z.infer<typeof ServiceEndpointSchema>;
 
 export const DIDDocumentSchema = z.object({
-  "@context": z
-    .union([z.string(), z.array(z.string())])
-    .default("https://www.w3.org/ns/did/v1"),
+  "@context": z.union([z.string(), z.array(z.string())]).default("https://www.w3.org/ns/did/v1"),
   id: z.string().startsWith("did:"),
   controller: z
     .union([z.string().startsWith("did:"), z.array(z.string().startsWith("did:"))])

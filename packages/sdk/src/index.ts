@@ -2,11 +2,7 @@
 
 // Client/Server
 export { CATEClient, type CATEClientConfig, type SendParams } from "./client.js";
-export {
-  CATEServer,
-  type CATEServerConfig,
-  type MessageContext,
-} from "./server.js";
+export { CATEServer, type CATEServerConfig, type MessageContext } from "./server.js";
 
 // Types (most commonly needed)
 export {

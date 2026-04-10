@@ -32,9 +32,7 @@ export class ConsentManager {
     const existing = this.grants.get(key);
 
     const grant: ConsentGrant = {
-      scopes: existing
-        ? [...new Set([...existing.scopes, ...params.scopes])]
-        : params.scopes,
+      scopes: existing ? [...new Set([...existing.scopes, ...params.scopes])] : params.scopes,
       audience: params.audience,
       grantedAt: new Date(),
       expiresAt: params.expiresInSeconds

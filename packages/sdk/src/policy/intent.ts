@@ -7,13 +7,7 @@
 
 import type { IntentCategory } from "../types/policy.js";
 
-const SYSTEM_PATTERNS = [
-  /^system\b/i,
-  /heartbeat/i,
-  /ping/i,
-  /health.?check/i,
-  /status/i,
-];
+const SYSTEM_PATTERNS = [/^system\b/i, /heartbeat/i, /ping/i, /health.?check/i, /status/i];
 
 const TRANSACTIONAL_PATTERNS = [
   /\b(pay|payment|invoice|receipt|order|purchase|buy|sell|transfer)\b/i,

@@ -23,10 +23,7 @@ export class RateLimiter {
    * Returns true if allowed, false if rate limited.
    */
   allow(senderId: string, budget: RateBudget, cost = 1): boolean {
-    const bucket = this.getOrCreateBucket(
-      senderId,
-      budget.max_messages_per_hour,
-    );
+    const bucket = this.getOrCreateBucket(senderId, budget.max_messages_per_hour);
 
     this.refill(bucket);
 
