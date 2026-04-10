@@ -18,8 +18,8 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  release:
-    name: Publish & Release
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,30 +32,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "v${{ inputs.version }}"
           git push origin "v${{ inputs.version }}"
-          echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
-
-      - name: Set version from tag
-        if: github.event_name == 'push'
-        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.2.0
 
-      - name: Setup Node.js (GitHub Packages)
+      - name: Setup Node.js
         uses: actions/setup-node@v6.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@cate-protocol"
-
-      - name: Set package version from tag
-        run: |
-          VERSION="${RELEASE_VERSION#v}"
-          VERSION="${VERSION#v}"
-          # Update SDK package version
-          cd packages/sdk
-          npm pkg set version="$VERSION"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -69,28 +54,84 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/sdk/dist/
+
+  publish-github:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Generate bot token
+        id: bot-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+
+      - name: Set version from tag
+        if: github.event_name == 'push'
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Set version from input
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4.2.0
+
+      - name: Setup Node.js (GitHub Packages)
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@project-nomos"
+
+      - name: Set package version and scope for GitHub Packages
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          cd packages/sdk
+          npm pkg set version="$VERSION"
+          npm pkg set name="@project-nomos/cate-sdk"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/sdk/dist/
+
       - name: Publish to GitHub Packages
         run: |
           cd packages/sdk
           pnpm publish --no-git-checks --access public || echo "Package version may already exist, skipping"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.RELEASE_VERSION }}
-          generate_release_notes: true
+          NODE_AUTH_TOKEN: ${{ steps.bot-token.outputs.token }}
 
   publish-npm:
     name: Publish to npm
     runs-on: ubuntu-latest
-    needs: release
+    needs: build-and-test
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.1
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref }}
+
+      - name: Set version from tag
+        if: github.event_name == 'push'
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Set version from input
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.2.0
@@ -102,26 +143,20 @@ jobs:
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Set version from tag
-        if: github.event_name == 'push'
-        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
-
-      - name: Set version from input
-        if: github.event_name == 'workflow_dispatch'
-        run: echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
-
       - name: Set package version
         run: |
           VERSION="${RELEASE_VERSION#v}"
-          VERSION="${VERSION#v}"
           cd packages/sdk
           npm pkg set version="$VERSION"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/sdk/dist/
 
       - name: Publish to npm
         run: |
@@ -129,6 +164,37 @@ jobs:
           pnpm publish --no-git-checks --access public || echo "Package version may already exist, skipping"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [publish-github, publish-npm]
+    steps:
+      - name: Generate bot token
+        id: bot-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+
+      - name: Set version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_VERSION=v${{ inputs.version }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ steps.bot-token.outputs.token }}
 
   version-bump:
     name: Bump Version in Repo
@@ -151,7 +217,6 @@ jobs:
       - name: Update package version in repo
         run: |
           VERSION="${RELEASE_VERSION#v}"
-          VERSION="${VERSION#v}"
           cd packages/sdk
           npm pkg set version="$VERSION"
           cd ../..

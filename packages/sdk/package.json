@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "Consumer Agent Trust Envelope SDK — identity, E2EE, consent, rate limits, and message stamps",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/project-nomos/cate-protocol.git",
+    "directory": "packages/sdk"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
