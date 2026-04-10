@@ -92,16 +92,16 @@ await server.listen({ transport: new HttpTransport({ port: 8800 }) });
 
 The SDK is split into subpath exports so you can import only what you need.
 
-| Import | Description |
-| --- | --- |
-| `@cate-protocol/sdk` | `CATEClient`, `CATEServer`, envelope helpers |
-| `@cate-protocol/sdk/types` | Zod schemas and TypeScript types for envelopes, DIDs, policies |
-| `@cate-protocol/sdk/identity` | DID creation/resolution (`did:key`, `did:web`), keystores, Verifiable Credentials, agent cards |
-| `@cate-protocol/sdk/stamps` | Proof-of-work and micropayment stamp creation and verification |
-| `@cate-protocol/sdk/policy` | Policy engine, consent manager, intent classifier, rate limiter |
-| `@cate-protocol/sdk/encryption` | MLS group management and key packages |
-| `@cate-protocol/sdk/transport` | Abstract transport + HTTP reference implementation |
-| `@cate-protocol/sdk/adapters` | A2A task and MCP tool-call wrappers |
+| Import                          | Description                                                                                    |
+| ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `@cate-protocol/sdk`            | `CATEClient`, `CATEServer`, envelope helpers                                                   |
+| `@cate-protocol/sdk/types`      | Zod schemas and TypeScript types for envelopes, DIDs, policies                                 |
+| `@cate-protocol/sdk/identity`   | DID creation/resolution (`did:key`, `did:web`), keystores, Verifiable Credentials, agent cards |
+| `@cate-protocol/sdk/stamps`     | Proof-of-work and micropayment stamp creation and verification                                 |
+| `@cate-protocol/sdk/policy`     | Policy engine, consent manager, intent classifier, rate limiter                                |
+| `@cate-protocol/sdk/encryption` | MLS group management and key packages                                                          |
+| `@cate-protocol/sdk/transport`  | Abstract transport + HTTP reference implementation                                             |
+| `@cate-protocol/sdk/adapters`   | A2A task and MCP tool-call wrappers                                                            |
 
 ## Envelope Structure
 
@@ -157,10 +157,7 @@ const result = verifyPoWStamp(stamp); // { valid: true, type: "pow" }
 **Micropayment** — the sender attaches a payment receipt:
 
 ```typescript
-import {
-  createMicropaymentStamp,
-  verifyMicropaymentStamp,
-} from "@cate-protocol/sdk/stamps";
+import { createMicropaymentStamp, verifyMicropaymentStamp } from "@cate-protocol/sdk/stamps";
 
 const stamp = createMicropaymentStamp({
   amount: 0.01,

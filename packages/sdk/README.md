@@ -46,16 +46,16 @@ await server.listen({ transport: new HttpTransport({ port: 8800 }) });
 
 ## Modules
 
-| Import | Description |
-| --- | --- |
-| `@cate-protocol/sdk` | CATEClient, CATEServer, envelope helpers |
-| `@cate-protocol/sdk/types` | Zod schemas and TypeScript types |
-| `@cate-protocol/sdk/identity` | DIDs, keystores, Verifiable Credentials, agent cards |
-| `@cate-protocol/sdk/stamps` | Proof-of-work and micropayment stamps |
-| `@cate-protocol/sdk/policy` | Policy engine, consent, intent classifier, rate limiter |
-| `@cate-protocol/sdk/encryption` | MLS group management and key packages |
-| `@cate-protocol/sdk/transport` | Abstract transport + HTTP implementation |
-| `@cate-protocol/sdk/adapters` | A2A and MCP protocol wrappers |
+| Import                          | Description                                             |
+| ------------------------------- | ------------------------------------------------------- |
+| `@cate-protocol/sdk`            | CATEClient, CATEServer, envelope helpers                |
+| `@cate-protocol/sdk/types`      | Zod schemas and TypeScript types                        |
+| `@cate-protocol/sdk/identity`   | DIDs, keystores, Verifiable Credentials, agent cards    |
+| `@cate-protocol/sdk/stamps`     | Proof-of-work and micropayment stamps                   |
+| `@cate-protocol/sdk/policy`     | Policy engine, consent, intent classifier, rate limiter |
+| `@cate-protocol/sdk/encryption` | MLS group management and key packages                   |
+| `@cate-protocol/sdk/transport`  | Abstract transport + HTTP implementation                |
+| `@cate-protocol/sdk/adapters`   | A2A and MCP protocol wrappers                           |
 
 ## Documentation
 
