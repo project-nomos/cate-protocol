@@ -12,7 +12,7 @@ on:
 
 permissions:
   contents: write
-  packages: write
+  id-token: write
 
 env:
   NODE_VERSION: "22"
@@ -74,22 +74,20 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # --- Publish to GitHub Packages ---
-      - name: Setup Node.js (GitHub Packages)
+      # --- Publish to npm ---
+      - name: Setup Node.js (npm registry)
         uses: actions/setup-node@v6.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@project-nomos"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@cate-protocol"
 
-      - name: Publish to GitHub Packages
+      - name: Publish to npm
         run: |
           cd packages/sdk
-          # GitHub Packages requires scope to match the GitHub org
-          npm pkg set name="@project-nomos/cate-sdk"
-          pnpm publish --no-git-checks --access public || echo "Package version may already exist, skipping"
+          pnpm publish --no-git-checks --access public --provenance || echo "Package version may already exist, skipping"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # --- GitHub Release ---
       - name: Create GitHub Release
